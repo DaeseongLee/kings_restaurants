@@ -1,8 +1,9 @@
+import { InternalServerErrorException } from "@nestjs/common";
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
 import { IsBoolean, IsEmail, IsEnum, IsNumber, IsString } from "class-validator";
 import { CoreEntity } from "src/common/entities/core.entity";
-import { Column, Entity } from "typeorm";
-
+import { BeforeInsert, Column, Entity } from "typeorm";
+import * as bcrypt from 'bcrypt';
 export enum UserRole {
     Owner = "Owner",
     Client = "Client",
@@ -44,5 +45,25 @@ export class User extends CoreEntity {
     @Column({ default: false })
     @IsBoolean()
     verified: boolean;
+
+    @BeforeInsert()
+    async hashPassword(): Promise<void> {
+        try {
+            this.password = await bcrypt.hash(this.password, 10);
+        } catch (error) {
+            console.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
+
+    async checkPassword(aPassword: string): Promise<boolean> {
+        try {
+            const ok = await bcrypt.compare(aPassword, this.password);
+            return ok;
+        } catch (error) {
+            console.error(error);
+            throw new InternalServerErrorException();
+        }
+    }
 
 }
