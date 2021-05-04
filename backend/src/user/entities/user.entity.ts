@@ -33,15 +33,15 @@ export class User extends CoreEntity {
     @Field(type => String)
     @Column()
     @IsString()
-    phone: string;
+    phone: String;
 
     @Field(type => UserRole)
     @Column()
     @IsEnum(UserRole)
     role: UserRole;
 
-    @Field(type => Boolean)
-    @Column()
+    @Field(type => Boolean, { defaultValue: false })
+    @Column({ default: false })
     @IsBoolean()
     verified: boolean;
 
