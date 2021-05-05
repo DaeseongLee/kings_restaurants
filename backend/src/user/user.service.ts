@@ -5,7 +5,6 @@ import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { ConfigService } from '@nestjs/config';
-import * as jwt from 'jsonwebtoken';
 import { JwtService } from 'src/jwt/jwt.service';
 import { EditProfileInput, EditProfileOutput } from './dtos/editProfile.dto';
 import { UserProfileOutput } from './dtos/userProfile.dto';

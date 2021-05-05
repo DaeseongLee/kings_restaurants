@@ -1,7 +1,7 @@
 import { UserProfileInput, UserProfileOutput } from './dtos/userProfile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { CreateAccountOutput, CreateAccountInput } from './dtos/createAccout.dto';
-import { Resolver, Query, Mutation, Args } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, Context } from "@nestjs/graphql";
 import { User } from "./entities/user.entity";
 import { UserService } from './user.service';
 import { EditProfileInput, EditProfileOutput } from './dtos/editProfile.dto';
@@ -9,6 +9,15 @@ import { EditProfileInput, EditProfileOutput } from './dtos/editProfile.dto';
 @Resolver(of => User)
 export class UserResolver {
     constructor(private readonly userService: UserService) { }
+
+    @Query(returns => User)
+    me(@Context() context) {
+        if (context.user) {
+            return context.user;
+        } else {
+            return;
+        }
+    }
 
     @Query(returns => User)
     userProfile(@Args() { userId }: UserProfileInput): Promise<UserProfileOutput> {

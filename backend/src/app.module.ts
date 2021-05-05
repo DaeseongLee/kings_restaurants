@@ -8,6 +8,7 @@ import * as Joi from 'joi';
 import { User } from './user/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -40,11 +41,13 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context: ({ req }) => ({ user: req['user'] }),
     }),
     UserModule,
     JwtModule.forRoot({
       privateKey: process.env.SECRET_KEY,
     }),
+    AuthModule,
     // CommonModule,
   ],
   controllers: [],
