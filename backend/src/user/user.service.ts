@@ -1,3 +1,5 @@
+import { Verification } from './entities/verification.entity';
+import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verifyEmail.dto';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/createAccout.dto';
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -13,7 +15,7 @@ import { UserProfileOutput } from './dtos/userProfile.dto';
 @Injectable()
 export class UserService {
     constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>,
-        private readonly config: ConfigService,
+        @InjectRepository(Verification) private readonly verificationsRepository: Repository<Verification>,
         private readonly jwtService: JwtService,) { }
 
     async createAccount(input: CreateAccountInput): Promise<CreateAccountOutput> {
@@ -25,11 +27,14 @@ export class UserService {
                     error: 'This email aleady exist',
                 }
             }
-            this.usersRepository.save(this.usersRepository.create(input));
+            const user = await this.usersRepository.save(this.usersRepository.create(input));
+            console.log("user", user);
+            const verification = await this.verificationsRepository.save(this.verificationsRepository.create({ user }));
             return {
                 ok: true,
             }
         } catch (error) {
+            console.error(error);
             return {
                 ok: false,
                 error: "Couldn't create account"
@@ -111,6 +116,30 @@ export class UserService {
             return {
                 ok: false,
                 error: "Couldn't editProfile",
+            }
+        }
+    };
+
+    async verifyEmail({ code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
+        try {
+            const verification = await this.verificationsRepository.findOne({ code }, { relations: ['user'], });
+
+            if (verification) {
+                verification.user.verified = true;
+                await this.usersRepository.save(verification.user);
+                await this.verificationsRepository.delete(verification.id);
+                return {
+                    ok: true,
+                }
+            }
+            return {
+                ok: false,
+                error: 'Verification not found',
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Coudn't verfyEmail",
             }
         }
     }
