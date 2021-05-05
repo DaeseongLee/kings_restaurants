@@ -8,7 +8,7 @@ import { UserService } from './user.service';
 export class UserResolver {
     constructor(private readonly userService: UserService) { }
     @Query(returns => Boolean)
-    me(): Boolean {
+    me(@Args() email: string): Boolean {
         return true;
     }
 

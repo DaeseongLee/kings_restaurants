@@ -1,0 +1,26 @@
+import { JwtModuleOptions } from './jwt.interface';
+import { CONFIG_OPTIONS } from './../common/common.constant';
+import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
+import { User } from 'src/user/entities/user.entity';
+
+@Injectable()
+export class JwtService {
+    constructor(@Inject(CONFIG_OPTIONS) private readonly options: JwtModuleOptions) { }
+    hello() {
+        console.log('hello');
+    }
+
+    sign(user: User) {
+        console.log('token', "comminasdasd")
+        console.log('optionPrivateKey', this.options.privateKey)
+        const token = jwt.sign({ id: user.id }, this.options.privateKey);
+
+        return token
+    }
+
+    verify(token: string) {
+        return jwt.verify(token, this.options.privateKey);
+    }
+}
