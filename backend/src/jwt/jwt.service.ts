@@ -11,10 +11,10 @@ export class JwtService {
         console.log('hello');
     }
 
-    sign(user: User) {
+    sign(userId: number) {
         console.log('token', "comminasdasd")
         console.log('optionPrivateKey', this.options.privateKey)
-        const token = jwt.sign({ id: user.id }, this.options.privateKey);
+        const token = jwt.sign({ id: userId }, this.options.privateKey);
 
         return token
     }

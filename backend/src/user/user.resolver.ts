@@ -5,18 +5,19 @@ import { Resolver, Query, Mutation, Args, Context } from "@nestjs/graphql";
 import { User } from "./entities/user.entity";
 import { UserService } from './user.service';
 import { EditProfileInput, EditProfileOutput } from './dtos/editProfile.dto';
+import { AuthUser } from 'src/auth/authUser.decorator';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/role.decorator';
 
 @Resolver(of => User)
 export class UserResolver {
     constructor(private readonly userService: UserService) { }
 
     @Query(returns => User)
-    me(@Context() context) {
-        if (context.user) {
-            return context.user;
-        } else {
-            return;
-        }
+    @Role(['Any'])
+    me(@AuthUser() authUser: User) {
+        return authUser;
     }
 
     @Query(returns => User)
@@ -35,7 +36,8 @@ export class UserResolver {
     }
 
     @Mutation(returns => EditProfileOutput)
-    editProfile(@Args('input') editProfileInput: EditProfileInput): Promise<EditProfileOutput> {
-        return this.userService.editProfile(editProfileInput);
+    @Role(['Any'])
+    editProfile(@AuthUser() authUser: User, @Args('input') editProfileInput: EditProfileInput): Promise<EditProfileOutput> {
+        return this.userService.editProfile(authUser, editProfileInput);
     }
 }

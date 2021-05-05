@@ -19,7 +19,6 @@ export class UserService {
     async createAccount(input: CreateAccountInput): Promise<CreateAccountOutput> {
         try {
             const exitUser = await this.usersRepository.findOne({ email: input?.email });
-            console.log(exitUser);
             if (exitUser) {
                 return {
                     ok: false,
@@ -40,7 +39,7 @@ export class UserService {
 
     async login({ email, password }: LoginInput): Promise<LoginOutput> {
         try {
-            const user = await this.usersRepository.findOne({ email });
+            const user = await this.usersRepository.findOne({ email }, { select: ['id', 'password'] });
 
             if (!user) {
                 return {
@@ -56,7 +55,7 @@ export class UserService {
                     error: 'Wrong password',
                 }
             };
-            const token = this.jwtService.sign(user);
+            const token = this.jwtService.sign(user.id);
             return {
                 ok: true,
                 token
@@ -91,10 +90,19 @@ export class UserService {
         }
     }
 
-    async editProfile({ userId, password, address, phone }: EditProfileInput): Promise<EditProfileOutput> {
+    async editProfile({ id: userId }: User, { password, address, phone }: EditProfileInput): Promise<EditProfileOutput> {
         try {
             const user = await this.usersRepository.findOne(userId);
-            console.log(user);
+            if (password) {
+                user.password = password;
+            }
+            if (address) {
+                user.address = address;
+            }
+            if (phone) {
+                user.phone = phone;
+            }
+            await this.usersRepository.save(user);
             return {
                 ok: true,
             }
