@@ -2,7 +2,6 @@ import { Verification } from './user/entities/verification.entity';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { UserModule } from './user/user.module';
-import { CommonModule } from './common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
@@ -15,6 +14,7 @@ import { RestaurantModule } from './restaurant/restaurant.module';
 import { Restaurant } from './restaurant/entities/restaurant.entity';
 import { Category } from './restaurant/entities/category.entity';
 import { Review } from './restaurant/entities/review.entity';
+import { Dish } from './restaurant/entities/dish.entity';
 
 @Module({
   imports: [
@@ -46,22 +46,22 @@ import { Review } from './restaurant/entities/review.entity';
       database: process.env.DB_NAME,
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
-      entities: [User, Verification, Restaurant, Category, Review]
+      entities: [User, Verification, Restaurant, Category, Review, Dish]
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
       context: ({ req }) => ({ user: req['user'] }),
     }),
-    UserModule,
     JwtModule.forRoot({
       privateKey: process.env.SECRET_KEY,
     }),
-    AuthModule,
     MailModule.forRoot({
       apiKey: process.env.MAILGUN_API_KEY,
       domain: process.env.MAILGUN_DOMAIN_NAME,
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
+    AuthModule,
+    UserModule,
     RestaurantModule,
   ],
   controllers: [],
