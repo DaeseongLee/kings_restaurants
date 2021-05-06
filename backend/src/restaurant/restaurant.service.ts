@@ -1,3 +1,4 @@
+import { DeleteRestaurantInput, DeleteRestaurantOutput } from './dtos/deleteRestaurant.dto';
 import { Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -34,22 +35,31 @@ export class RestaurantService {
         }
     };
 
+    async findRestaurant(owner: User, restaurantId: number) {
+        const restaurant = await this.restaurantRepository.findOne(restaurantId);
+        if (!restaurant) {
+            return {
+                ok: false,
+                error: 'Restaurant not found',
+            }
+        };
+        if (owner.id !== restaurant.ownerId) {
+            return {
+                ok: false,
+                error: "You can't edit a restaurant that you don't own",
+            };
+        };
+        return {
+            ok: true,
+        }
+    };
+
     async editRestaurant(owner: User, input: EditRestaurantInput): Promise<EditRestaurantOutput> {
         try {
-            const oldRestaurant = await this.restaurantRepository.findOne(input.restaurantId);
-            console.log("oldRestaurant", oldRestaurant);
-            if (!oldRestaurant) {
-                return {
-                    ok: false,
-                    error: 'Restaurant not found',
-                }
-            };
-            if (owner.id !== oldRestaurant.ownerId) {
-                return {
-                    ok: false,
-                    error: "You can't edit a restaurant that you don't own",
-                };
-            };
+            const result = await this.findRestaurant(owner, input.restaurantId);
+            if (!result.ok) {
+                return result;
+            }
             let category: Category = null;
             if (input.categoryName) {
                 category = await this.categoryRepository.getOrCreate(input.categoryName);
@@ -67,6 +77,25 @@ export class RestaurantService {
             return {
                 ok: false,
                 error: "Couldn't editRestaurant",
+            }
+        }
+    };
+
+    async deleteRestaurant(owner: User, input: DeleteRestaurantInput): Promise<DeleteRestaurantOutput> {
+        try {
+            const result = await this.findRestaurant(owner, input.restaurantId);
+            if (!result.ok) {
+                return result;
+            }
+
+            this.restaurantRepository.delete(input.restaurantId);
+            return {
+                ok: true,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Couldn't deleteRestaurant",
             }
         }
     }
