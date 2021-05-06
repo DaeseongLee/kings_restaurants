@@ -10,13 +10,15 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from 'src/jwt/jwt.service';
 import { EditProfileInput, EditProfileOutput } from './dtos/editProfile.dto';
 import { UserProfileOutput } from './dtos/userProfile.dto';
+import { MailService } from 'src/mail/mail.service';
 
 
 @Injectable()
 export class UserService {
     constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>,
         @InjectRepository(Verification) private readonly verificationsRepository: Repository<Verification>,
-        private readonly jwtService: JwtService,) { }
+        private readonly jwtService: JwtService,
+        private readonly mailService: MailService) { }
 
     async createAccount(input: CreateAccountInput): Promise<CreateAccountOutput> {
         try {
@@ -28,8 +30,8 @@ export class UserService {
                 }
             }
             const user = await this.usersRepository.save(this.usersRepository.create(input));
-            console.log("user", user);
             const verification = await this.verificationsRepository.save(this.verificationsRepository.create({ user }));
+            this.mailService.sendVerificationEmail(user.email, verification.code);
             return {
                 ok: true,
             }
