@@ -25,6 +25,7 @@ export class RestaurantService {
                 restaurantId: newRestaurant.id,
             }
         } catch (error) {
+            console.error(error);
             return {
                 ok: false,
                 error: "Couldn't createRestaurant"

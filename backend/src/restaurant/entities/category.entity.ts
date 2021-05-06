@@ -18,8 +18,8 @@ export class Category extends CoreEntity {
     @IsString()
     slug: string;
 
-    @Field(type => String)
-    @Column()
+    @Field(type => String, { nullable: true })
+    @Column({ nullable: true })
     @IsString()
     coverImg: string;
 
