@@ -6,6 +6,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany } from
 import * as bcrypt from 'bcrypt';
 import { Restaurant } from "src/restaurant/entities/restaurant.entity";
 import { Review } from "src/restaurant/entities/review.entity";
+import { Order } from "src/order/entities/order.entity";
 export enum UserRole {
     Owner = "Owner",
     Client = "Client",
@@ -39,7 +40,7 @@ export class User extends CoreEntity {
     phone: String;
 
     @Field(type => UserRole)
-    @Column()
+    @Column({ type: 'enum', enum: UserRole })
     @IsEnum(UserRole)
     role: UserRole;
 
@@ -61,6 +62,20 @@ export class User extends CoreEntity {
         review => review.reviewer
     )
     reviews: Review[];
+
+    @Field(type => [Order])
+    @OneToMany(
+        type => Order,
+        order => order.customer,
+    )
+    orders: Order[];
+
+    @Field(type => [Order])
+    @OneToMany(
+        type => Order,
+        order => order.driver,
+    )
+    rides: Order[];
 
     @BeforeUpdate()
     @BeforeInsert()
