@@ -17,6 +17,7 @@ import { EditReviewInput, EditReviewOutput } from './dtos/editReview.dto';
 import { DeleteReviewInput, DeleteReviewOutput } from './dtos/deleteReview.dto';
 import { CreateDishInput, CreateDishOutput } from './dtos/createDish.dto';
 import { Dish } from './entities/dish.entity';
+import { DeleteDishInput, DeleteDishOutput } from './dtos/deleteDish.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -301,7 +302,32 @@ export class RestaurantService {
         } catch (error) {
             return {
                 ok: false,
-                error: "Could't editDish",
+                error: "Couldn't editDish",
+            }
+        }
+    };
+
+    async deleteDish(owner: User, input: DeleteDishInput): Promise<DeleteDishOutput> {
+        try {
+            const auth = await this.findRestaurant(owner, input.restaurantId);
+            if (!auth.ok) return auth;
+
+            const dish = await this.dishRepository.findOne(input.dishId);
+
+            if (!dish) {
+                return {
+                    ok: false,
+                    error: "Not found dish",
+                }
+            };
+            this.dishRepository.delete(input.dishId);
+            return {
+                ok: true,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Couldn't deleteDish",
             }
         }
     }
