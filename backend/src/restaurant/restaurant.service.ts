@@ -1,3 +1,4 @@
+import { EditDishInput, EditDishOutput } from './dtos/editDish.dto';
 import { Review } from './entities/review.entity';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 import { AllCategoriesOutput } from 'src/restaurant/dtos/AllCategories.dto';
@@ -14,12 +15,15 @@ import { EditRestaurantInput, EditRestaurantOutput } from './dtos/editRestaurant
 import { CreateReviewInput, CreateReviewOutput } from './dtos/createReview.dto';
 import { EditReviewInput, EditReviewOutput } from './dtos/editReview.dto';
 import { DeleteReviewInput, DeleteReviewOutput } from './dtos/deleteReview.dto';
+import { CreateDishInput, CreateDishOutput } from './dtos/createDish.dto';
+import { Dish } from './entities/dish.entity';
 
 @Injectable()
 export class RestaurantService {
     constructor(@InjectRepository(Restaurant) private readonly restaurantRepository: Repository<Restaurant>,
         @InjectRepository(Category) private readonly categoryRepository: CategoryRepository,
         @InjectRepository(Review) private readonly reviewRepository: Repository<Review>,
+        @InjectRepository(Dish) private readonly dishRepository: Repository<Dish>,
     ) { }
 
     async createRestaurant(owner: User, input: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
@@ -53,11 +57,12 @@ export class RestaurantService {
         if (owner.id !== restaurant.ownerId) {
             return {
                 ok: false,
-                error: "You can't edit a restaurant that you don't own",
+                error: "You have no authority",
             };
         };
         return {
             ok: true,
+            restaurant,
         }
     };
 
@@ -160,7 +165,7 @@ export class RestaurantService {
         } catch (error) {
             return {
                 ok: false,
-                error: "Coudn't findCategoryBySlug",
+                error: "Couldn't findCategoryBySlug",
             }
         }
     };
@@ -187,7 +192,7 @@ export class RestaurantService {
             console.error(error);
             return {
                 ok: false,
-                error: "Coudn't createReview",
+                error: "Couldn't createReview",
             }
         }
     };
@@ -221,14 +226,13 @@ export class RestaurantService {
                 id: input.reviewId,
                 ...input
             });
-            console.log("newReview!!!!", newReview);
             return {
                 ok: true,
             }
         } catch (error) {
             return {
                 ok: false,
-                error: "Coudn't editReview",
+                error: "Couldn't editReview",
             }
         }
     };
@@ -245,7 +249,59 @@ export class RestaurantService {
         } catch (error) {
             return {
                 ok: false,
-                error: "Coudn't deleteReview",
+                error: "Couldn't deleteReview",
+            }
+        }
+    }
+
+    async createDish(owner: User, input: CreateDishInput): Promise<CreateDishOutput> {
+        try {
+            const auth = await this.findRestaurant(owner, input.restaurantId);
+            if (!auth.ok) return auth;
+
+            const dish = await this.dishRepository.create({
+                ...input,
+            });
+            dish.restaurant = auth.restaurant;
+            await this.dishRepository.save(dish);
+            return {
+                ok: true,
+            }
+
+
+        } catch (error) {
+            console.error(error);
+            return {
+                ok: false,
+                error: "Couldn't createDish"
+            }
+        }
+    }
+
+    async editDish(owner: User, input: EditDishInput): Promise<EditDishOutput> {
+        try {
+            const auth = await this.findRestaurant(owner, input.restaurantId);
+            if (!auth.ok) return auth;
+
+            const dish = await this.dishRepository.findOne(input.dishId);
+            if (!dish) {
+                return {
+                    ok: false,
+                    error: "Not found dish",
+                }
+            };
+            await this.dishRepository.save({
+                id: input.dishId,
+                ...input,
+            });
+            return {
+                ok: true,
+            }
+
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Could't editDish",
             }
         }
     }
