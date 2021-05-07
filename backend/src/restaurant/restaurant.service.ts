@@ -1,3 +1,4 @@
+import { AllCategoriesOutput } from 'src/user/dtos/AllCategories.dto';
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from './dtos/deleteRestaurant.dto';
 import { Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
@@ -96,6 +97,31 @@ export class RestaurantService {
             return {
                 ok: false,
                 error: "Couldn't deleteRestaurant",
+            }
+        }
+    };
+
+    async countRestaurants(category: Category) {
+        try {
+            return await this.restaurantRepository.count({ category });
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async allCategories(): Promise<AllCategoriesOutput> {
+        try {
+            const categories = await this.categoryRepository.find();
+
+            return {
+                ok: true,
+                categories
+            }
+
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Couldn't allCategories"
             }
         }
     }
