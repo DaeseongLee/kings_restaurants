@@ -12,7 +12,7 @@ export class Review extends CoreEntity {
     @Field(type => Int)
     @Column()
     @IsNumber()
-    start: number;
+    star: number;
 
     @Field(type => String)
     @Column()
@@ -35,5 +35,8 @@ export class Review extends CoreEntity {
         user => user.reviews
     )
     reviewer: User;
+
+    @RelationId((review: Review) => review.reviewer)
+    reviewerId: number;
 
 }

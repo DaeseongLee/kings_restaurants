@@ -1,4 +1,4 @@
-import { Category } from './../../restaurant/entities/category.entity';
+import { Category } from '../entities/category.entity';
 import { ObjectType, Field } from "@nestjs/graphql";
 import { CoreOutput } from "src/common/dtos/output.dto";
 

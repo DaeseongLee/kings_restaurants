@@ -1,19 +1,24 @@
-import { AllCategoriesOutput } from 'src/user/dtos/AllCategories.dto';
+import { Review } from './entities/review.entity';
+import { CategoryInput, CategoryOutput } from './dtos/category.dto';
+import { AllCategoriesOutput } from 'src/restaurant/dtos/AllCategories.dto';
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from './dtos/deleteRestaurant.dto';
 import { Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/createRestaurant.dto";
 import { Restaurant } from "./entities/restaurant.entity";
-import { User } from 'src/user/entities/user.entity';
+import { User, UserRole } from 'src/user/entities/user.entity';
 import { Category } from './entities/category.entity';
 import { CategoryRepository } from './repositories/category.repository';
 import { EditRestaurantInput, EditRestaurantOutput } from './dtos/editRestaurant.dto';
+import { CreateReviewInput, CreateReviewOutput } from './dtos/createReview.dto';
+import { EditReviewInput, EditReviewOutput } from './dtos/editReview.dto';
 
 @Injectable()
 export class RestaurantService {
     constructor(@InjectRepository(Restaurant) private readonly restaurantRepository: Repository<Restaurant>,
         @InjectRepository(Category) private readonly categoryRepository: CategoryRepository,
+        @InjectRepository(Review) private readonly reviewRepository: Repository<Review>,
     ) { }
 
     async createRestaurant(owner: User, input: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
@@ -123,6 +128,95 @@ export class RestaurantService {
                 ok: false,
                 error: "Couldn't allCategories"
             }
+        }
+    };
+
+    async findCategoryBySlug({ slug, page }: CategoryInput): Promise<CategoryOutput> {
+        try {
+            const category = await this.categoryRepository.findOne({ slug });
+            if (!category) {
+                return {
+                    ok: false,
+                    error: 'Category Not Found',
+                }
+            };
+            const restaurants = await this.restaurantRepository.find({
+                where: { category },
+                take: 3,
+                skip: (page - 1) * 3,
+                order: {
+                    createdAt: 'DESC',
+                },
+            });
+            const totalResults = await this.countRestaurants(category);
+            return {
+                ok: true,
+                category,
+                restaurants,
+                totalPages: Math.ceil(totalResults / 3),
+                totalResults
+            };
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Coudn't findCategoryBySlug",
+            }
+        }
+    };
+
+    async createReview(reviewer: User, { restaurantId, star, comment }: CreateReviewInput): Promise<CreateReviewOutput> {
+        try {
+            const restaurant = await this.restaurantRepository.findOne(restaurantId);
+            if (!restaurant) {
+                return {
+                    ok: false,
+                    error: "Not found restaurant",
+                }
+            }
+
+            const review = await this.reviewRepository.create({ star, comment });
+            review.restaurant = restaurant;
+            review.reviewer = reviewer;
+            await this.reviewRepository.save(review);
+            return {
+                ok: true,
+                reviewer,
+            }
+        } catch (error) {
+            console.error(error);
+            return {
+                ok: false,
+                error: "Coudn't createReview",
+            }
+        }
+    };
+
+    async editReview(reviewer: User, input: EditReviewInput): Promise<EditReviewOutput> {
+        try {
+            const oldReview = await this.reviewRepository.findOne(input.reviewId);
+            console.log(oldReview);
+            if (!oldReview) {
+                return {
+                    ok: false,
+                    error: "Not found review",
+                }
+            };
+            if (reviewer.role === UserRole.Client && reviewer.id !== oldReview.reviewerId) {
+                return {
+                    ok: false,
+                    error: "You can't edit a review"
+                }
+            };
+            const newReview = await this.reviewRepository.save({
+                id: input.reviewId,
+                ...input
+            });
+            console.log("newReview!!!!", newReview);
+            return {
+                ok: true,
+            }
+        } catch (error) {
+
         }
     }
 }
