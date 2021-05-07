@@ -1,3 +1,4 @@
+import { DeleteReviewInput, DeleteReviewOutput } from './dtos/deleteReview.dto';
 import { CategoryOutput, CategoryInput } from './dtos/category.dto';
 import { Category } from './entities/category.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -72,5 +73,11 @@ export class ReviewResolver {
     @Role(['Client'])
     editReview(@AuthUser() reviewer: User, @Args('input') input: EditReviewInput): Promise<EditReviewOutput> {
         return this.restaurantService.editReview(reviewer, input);
+    }
+
+    @Mutation(returns => DeleteReviewOutput)
+    @Role(['Client', 'Owner'])
+    deleteReview(@AuthUser() reviewer: User, @Args('input') input: DeleteReviewInput): Promise<DeleteReviewOutput> {
+        return this.restaurantService.deleteReview(reviewer, input);
     }
 }

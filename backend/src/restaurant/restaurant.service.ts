@@ -13,6 +13,7 @@ import { CategoryRepository } from './repositories/category.repository';
 import { EditRestaurantInput, EditRestaurantOutput } from './dtos/editRestaurant.dto';
 import { CreateReviewInput, CreateReviewOutput } from './dtos/createReview.dto';
 import { EditReviewInput, EditReviewOutput } from './dtos/editReview.dto';
+import { DeleteReviewInput, DeleteReviewOutput } from './dtos/deleteReview.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -191,22 +192,31 @@ export class RestaurantService {
         }
     };
 
+    async findReview(reviewer: User, reviewerId: number) {
+        const review = await this.reviewRepository.findOne(reviewerId);
+        if (!review) {
+            return {
+                ok: false,
+                error: "Not found review",
+            }
+        };
+        if (reviewer.role === UserRole.Client && reviewer.id !== review.reviewerId) {
+            return {
+                ok: false,
+                error: "You have no authority"
+            }
+        };
+        return {
+            ok: true,
+        }
+    };
+
     async editReview(reviewer: User, input: EditReviewInput): Promise<EditReviewOutput> {
         try {
-            const oldReview = await this.reviewRepository.findOne(input.reviewId);
-            console.log(oldReview);
-            if (!oldReview) {
-                return {
-                    ok: false,
-                    error: "Not found review",
-                }
-            };
-            if (reviewer.role === UserRole.Client && reviewer.id !== oldReview.reviewerId) {
-                return {
-                    ok: false,
-                    error: "You can't edit a review"
-                }
-            };
+
+            const result = await this.findReview(reviewer, input.reviewId);
+            if (!result.ok) return result;
+
             const newReview = await this.reviewRepository.save({
                 id: input.reviewId,
                 ...input
@@ -216,7 +226,27 @@ export class RestaurantService {
                 ok: true,
             }
         } catch (error) {
+            return {
+                ok: false,
+                error: "Coudn't editReview",
+            }
+        }
+    };
+    async deleteReview(reviewer: User, input: DeleteReviewInput): Promise<DeleteReviewOutput> {
+        try {
 
+            const result = await this.findReview(reviewer, input.reviewId);
+            if (!result.ok) return result;
+
+            await this.reviewRepository.delete(input.reviewId);
+            return {
+                ok: true,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: "Coudn't deleteReview",
+            }
         }
     }
 }
