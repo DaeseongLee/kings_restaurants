@@ -3,7 +3,7 @@ import { GetOrderInput, GetOrderOutput } from './dtos/getOrder.dto';
 import { OrderItem } from './entities/orderItem.entity';
 import { Restaurant } from './../restaurant/entities/restaurant.entity';
 import { Repository } from 'typeorm';
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/createOrder.dto";
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserRole } from 'src/user/entities/user.entity';
@@ -11,6 +11,8 @@ import { Order, OrderStatus } from './entities/order.entity';
 import { Dish } from 'src/restaurant/entities/dish.entity';
 import { EditOrderInput, EditOrderOutput } from './dtos/editOrder.dto';
 import { GetOrdersInput, GetOrdersOutput } from './dtos/getOrders.dto';
+import { NEW_PENDING_ORDER, PUB_SUB } from 'src/common/common.constant';
+import { PubSub } from 'graphql-subscriptions';
 
 
 
@@ -20,6 +22,7 @@ export class OrderService {
         @InjectRepository(Restaurant) private readonly restaurantRepository: Repository<Restaurant>,
         @InjectRepository(Dish) private readonly dishRepository: Repository<Dish>,
         @InjectRepository(OrderItem) private readonly orderItemRepository: Repository<OrderItem>,
+        @Inject(PUB_SUB) private readonly pubSub: PubSub
     ) { }
 
     async createOrder(client: User, { restaurantId, items }: CreateOrderInput): Promise<CreateOrderOutput> {
@@ -45,17 +48,19 @@ export class OrderService {
                 };
 
                 let dishFinalPrice = dish.price;
-                for (const itemOption of item.options) {
-                    const dishOption = dish.options.find(dishOption => dishOption.name === itemOption.name);
-                    if (dishOption) {
-                        dishFinalPrice += dishOption.extra;
-                    } else {
-                        const dishOptionChoice = dishOption.choiced?.find(optionChoice => optionChoice.name === itemOption.choice);
-                        if (dishOptionChoice?.extra) {
-                            dishFinalPrice += dishOptionChoice.extra
-                        }
+                if (item.options) {
+                    for (const itemOption of item.options) {
+                        const dishOption = dish.options.find(dishOption => dishOption.name === itemOption.name);
+                        if (dishOption) {
+                            dishFinalPrice += dishOption.extra;
+                        } else {
+                            const dishOptionChoice = dishOption.choiced?.find(optionChoice => optionChoice.name === itemOption.choice);
+                            if (dishOptionChoice?.extra) {
+                                dishFinalPrice += dishOptionChoice.extra
+                            }
+                        };
                     };
-                };
+                }
                 orderFinalPrice = orderFinalPrice + dishFinalPrice;
                 const orderItems = await this.orderItemRepository.save(
                     this.orderItemRepository.create({
@@ -73,6 +78,7 @@ export class OrderService {
                     items: orderItem,
                 })
             );
+            this.pubSub.publish(NEW_PENDING_ORDER, { pendingOrders: { order, ownerId: restaurant.ownerId } })
             return {
                 ok: true,
                 orderId: order.id,
