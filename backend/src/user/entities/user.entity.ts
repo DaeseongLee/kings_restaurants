@@ -40,7 +40,7 @@ export class User extends CoreEntity {
     phone: String;
 
     @Field(type => UserRole)
-    @Column({ type: 'enum', enum: UserRole })
+    @Column({ type: 'enum', enum: UserRole, nullable: true })
     @IsEnum(UserRole)
     role: UserRole;
 

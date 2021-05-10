@@ -6,7 +6,7 @@ import { Category } from './entities/category.entity';
 import { User } from 'src/user/entities/user.entity';
 import { CreateRestaurantInput, CreateRestaurantOutput } from './dtos/createRestaurant.dto';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
-import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent, Int } from "@nestjs/graphql";
+import { Resolver, Query, Mutation, Args, ResolveField, Parent, Int } from "@nestjs/graphql";
 import { AuthUser } from 'src/auth/authUser.decorator';
 import { Role } from 'src/auth/role.decorator';
 import { RestaurantService } from './restaurant.service';

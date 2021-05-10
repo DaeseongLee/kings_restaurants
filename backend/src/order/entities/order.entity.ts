@@ -49,9 +49,9 @@ export class Order extends CoreEntity {
         type => Restaurant,
         { onDelete: 'SET NULL' }
     )
-    retaurant: Restaurant;
+    restaurant: Restaurant;
 
-    @RelationId((order: Order) => order.retaurant)
+    @RelationId((order: Order) => order.restaurant)
     restaurantId: number;
 
     @Field(type => OrderItem)
