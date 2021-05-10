@@ -1,3 +1,4 @@
+import { NEW_COOKED_ORDER } from './../common/common.constant';
 import { TakeOrderInput, TakeOrderOutput } from './dtos/takeOrder.dto';
 import { GetOrderInput, GetOrderOutput } from './dtos/getOrder.dto';
 import { OrderItem } from './entities/orderItem.entity';
@@ -78,7 +79,7 @@ export class OrderService {
                     items: orderItem,
                 })
             );
-            this.pubSub.publish(NEW_PENDING_ORDER, { pendingOrders: { order, ownerId: restaurant.ownerId } })
+            await this.pubSub.publish(NEW_PENDING_ORDER, { pendingOrders: { order, ownerId: restaurant.ownerId } })
             return {
                 ok: true,
                 orderId: order.id,
@@ -109,8 +110,6 @@ export class OrderService {
     async editOrder(user: User, { id: orderId, orderStatus }: EditOrderInput): Promise<EditOrderOutput> {
         try {
             const order = await this.orderRepository.findOne(orderId);
-            console.log(order);
-            console.log(user);
             if (!order) {
                 return {
                     ok: false,
@@ -149,7 +148,11 @@ export class OrderService {
                     orderStatus,
                 }
             ]);
-
+            const updateOrder = { ...order, orderStatus }
+            console.log(updateOrder);
+            if (user.role === UserRole.Owner && orderStatus === OrderStatus.Cooked) {
+                await this.pubSub.publish(NEW_COOKED_ORDER, { cookedOrders: updateOrder });
+            }
             return {
                 ok: true,
             }
