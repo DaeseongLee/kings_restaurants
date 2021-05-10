@@ -47,7 +47,7 @@ export class Order extends CoreEntity {
     @Field(type => Restaurant)
     @ManyToOne(
         type => Restaurant,
-        { onDelete: 'SET NULL' }
+        { onDelete: 'SET NULL', eager: true }
     )
     restaurant: Restaurant;
 

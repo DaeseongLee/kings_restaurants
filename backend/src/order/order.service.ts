@@ -4,9 +4,10 @@ import { Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
 import { CreateOrderInput, CreateOrderOutput } from "./dtos/createOrder.dto";
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { Order } from './entities/order.entity';
+import { User, UserRole } from 'src/user/entities/user.entity';
+import { Order, OrderStatus } from './entities/order.entity';
 import { Dish } from 'src/restaurant/entities/dish.entity';
+import { EditOrderInput, EditOrderOutput } from './dtos/editOrder.dto';
 
 
 
@@ -78,6 +79,75 @@ export class OrderService {
             return {
                 ok: false,
                 error: "Couldn't createOrder",
+            }
+        }
+    };
+
+    canSeeOrder(user: User, order: Order): boolean {
+        let canSee = true;
+        if (user.role === UserRole.Client && order.clientId! == user.id) {
+            canSee = false;
+        }
+        if (user.role === UserRole.Delievery && order.driverId !== user.id) {
+            canSee = false;
+        }
+        if (user.role === UserRole.Owner && order.restaurant.ownerId !== user.id) {
+            canSee = false;
+        }
+        return canSee;
+    }
+
+    async editOrder(user: User, { id: orderId, orderStatus }: EditOrderInput): Promise<EditOrderOutput> {
+        try {
+            const order = await this.orderRepository.findOne(orderId);
+            console.log(order);
+            console.log(user);
+            if (!order) {
+                return {
+                    ok: false,
+                    error: "Order not found.",
+                }
+            };
+            if (!this.canSeeOrder(user, order)) {
+                return {
+                    ok: false,
+                    error: "Can't see this.",
+                }
+            };
+
+            let canEdit = true;
+            if (user.role === UserRole.Owner) {
+                if (orderStatus != OrderStatus.Cooking && orderStatus !== OrderStatus.Cooked) {
+                    canEdit = false;
+                }
+            }
+            if (user.role === UserRole.Delievery) {
+                if (orderStatus !== OrderStatus.PickedUp && orderStatus !== OrderStatus.Delivered) {
+                    canEdit = false;
+                };
+            };
+
+            if (!canEdit) {
+                return {
+                    ok: false,
+                    error: "You can't do that",
+                }
+            };
+
+            await this.orderRepository.save([
+                {
+                    id: orderId,
+                    orderStatus,
+                }
+            ]);
+
+            return {
+                ok: true,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error,
             }
         }
     }
