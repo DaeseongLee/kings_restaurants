@@ -1,3 +1,4 @@
+import { TakeOrderInput, TakeOrderOutput } from './dtos/takeOrder.dto';
 import { GetOrderInput, GetOrderOutput } from './dtos/getOrder.dto';
 import { OrderItem } from './entities/orderItem.entity';
 import { Restaurant } from './../restaurant/entities/restaurant.entity';
@@ -157,7 +158,6 @@ export class OrderService {
     async getOrder(user: User, { id: orderId }: GetOrderInput): Promise<GetOrderOutput> {
         try {
             const order = await this.orderRepository.findOne(orderId);
-            console.log(order);
             if (!order) {
                 return {
                     ok: false,
@@ -223,4 +223,34 @@ export class OrderService {
             }
         }
     };
+
+    async takeOrder(driver: User, { id: orderId }: TakeOrderInput): Promise<TakeOrderOutput> {
+        try {
+            const order = await this.orderRepository.findOne(orderId);
+            if (!order) {
+                return {
+                    ok: false,
+                    error: 'Order not found',
+                };
+            };
+            if (order.driver) {
+                return {
+                    ok: false,
+                    error: "This order already has a driver",
+                }
+            };
+            const ord = await this.orderRepository.save({
+                id: orderId,
+                driver,
+            });
+            return {
+                ok: true,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error,
+            }
+        }
+    }
 }
