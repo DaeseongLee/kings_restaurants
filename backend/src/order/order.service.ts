@@ -1,3 +1,4 @@
+import { GetOrderInput, GetOrderOutput } from './dtos/getOrder.dto';
 import { OrderItem } from './entities/orderItem.entity';
 import { Restaurant } from './../restaurant/entities/restaurant.entity';
 import { Repository } from 'typeorm';
@@ -8,6 +9,7 @@ import { User, UserRole } from 'src/user/entities/user.entity';
 import { Order, OrderStatus } from './entities/order.entity';
 import { Dish } from 'src/restaurant/entities/dish.entity';
 import { EditOrderInput, EditOrderOutput } from './dtos/editOrder.dto';
+import { GetOrdersInput, GetOrdersOutput } from './dtos/getOrders.dto';
 
 
 
@@ -150,5 +152,75 @@ export class OrderService {
                 error,
             }
         }
-    }
+    };
+
+    async getOrder(user: User, { id: orderId }: GetOrderInput): Promise<GetOrderOutput> {
+        try {
+            const order = await this.orderRepository.findOne(orderId);
+            console.log(order);
+            if (!order) {
+                return {
+                    ok: false,
+                    error: "Order not found.",
+                };
+            };
+            if (!this.canSeeOrder(user, order)) {
+                return {
+                    ok: false,
+                    error: "You cant't see that.",
+                };
+            };
+            return {
+                ok: true,
+                order,
+            }
+        } catch (error) {
+            console.error(error);
+            return {
+                ok: false,
+                error,
+            }
+        }
+    };
+
+    async getOrders(user: User, { status: orderStatus }: GetOrdersInput): Promise<GetOrdersOutput> {
+        try {
+            let orders: Order[];
+            if (user.role === UserRole.Client) {
+                orders = await this.orderRepository.find({
+                    where: {
+                        customer: user,
+                        ...(orderStatus && { orderStatus }),
+                    },
+                });
+            } else if (user.role === UserRole.Delievery) {
+                orders = await this.orderRepository.find({
+                    where: {
+                        driver: user,
+                        ...(orderStatus && { orderStatus }),
+                    },
+                });
+            } else if (user.role === UserRole.Owner) {
+                const restaurant = await this.restaurantRepository.find({
+                    where: {
+                        owner: user
+                    },
+                    relations: ['orders']
+                });
+                orders = restaurant.map(restaurant => restaurant.orders).flat(1);
+                if (orderStatus) {
+                    orders = orders.filter(order => order.orderStatus === orderStatus);
+                }
+            };
+            return {
+                ok: true,
+                orders,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error,
+            }
+        }
+    };
 }
