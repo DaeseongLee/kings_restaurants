@@ -1,4 +1,4 @@
-import { NEW_COOKED_ORDER } from './../common/common.constant';
+import { NEW_COOKED_ORDER, NEW_ORDER_UPDATE } from './../common/common.constant';
 import { TakeOrderInput, TakeOrderOutput } from './dtos/takeOrder.dto';
 import { GetOrderInput, GetOrderOutput } from './dtos/getOrder.dto';
 import { OrderItem } from './entities/orderItem.entity';
@@ -149,10 +149,10 @@ export class OrderService {
                 }
             ]);
             const updateOrder = { ...order, orderStatus }
-            console.log(updateOrder);
             if (user.role === UserRole.Owner && orderStatus === OrderStatus.Cooked) {
                 await this.pubSub.publish(NEW_COOKED_ORDER, { cookedOrders: updateOrder });
-            }
+            };
+            await this.pubSub.publish(NEW_ORDER_UPDATE, { orderUpdates: updateOrder });
             return {
                 ok: true,
             }
@@ -251,6 +251,9 @@ export class OrderService {
             const ord = await this.orderRepository.save({
                 id: orderId,
                 driver,
+            });
+            await this.pubSub.publish(NEW_ORDER_UPDATE, {
+                orderUpdates: { ...order, driverId: driver.id },
             });
             return {
                 ok: true,
