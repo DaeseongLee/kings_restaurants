@@ -1,5 +1,8 @@
 import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { isLoggedInVar } from '../apollo';
+import { CreateAccount } from '../pages/create-account';
+import { Login } from '../pages/login';
 
 export const LoggedOutRouter = () => {
     const onClick = () => {
@@ -7,9 +10,18 @@ export const LoggedOutRouter = () => {
     }
 
     return (
-        <div>
-            <h1>LoggedOut</h1>
-            <button onClick={onClick}>LogIn</button>
-        </div>
+        <Router>
+            <Switch>
+                <Route path="/create-account">
+                    <CreateAccount />
+                </Route>
+                <Route path="/" exact>
+                    <Login />
+                </Route>
+                <Route>
+
+                </Route>
+            </Switch>
+        </Router>
     )
 }
