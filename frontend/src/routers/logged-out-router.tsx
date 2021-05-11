@@ -1,13 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { isLoggedInVar } from '../apollo';
+import { NotFound } from '../components/404';
 import { CreateAccount } from '../pages/create-account';
 import { Login } from '../pages/login';
 
 export const LoggedOutRouter = () => {
-    const onClick = () => {
-        isLoggedInVar(true);
-    }
 
     return (
         <Router>
@@ -19,7 +16,7 @@ export const LoggedOutRouter = () => {
                     <Login />
                 </Route>
                 <Route>
-
+                    <NotFound />
                 </Route>
             </Switch>
         </Router>

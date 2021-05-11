@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
+
+.input {
+    @apply p-3 focus:outline-none focus:border-purple-600 border-2 border-purple-200 text-lg transition-colors
+}
 @tailwind utilities;
