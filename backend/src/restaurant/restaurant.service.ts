@@ -3,7 +3,7 @@ import { Review } from './entities/review.entity';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 import { AllCategoriesOutput } from 'src/restaurant/dtos/AllCategories.dto';
 import { DeleteRestaurantInput, DeleteRestaurantOutput } from './dtos/deleteRestaurant.dto';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "./dtos/createRestaurant.dto";
@@ -18,6 +18,11 @@ import { DeleteReviewInput, DeleteReviewOutput } from './dtos/deleteReview.dto';
 import { CreateDishInput, CreateDishOutput } from './dtos/createDish.dto';
 import { Dish } from './entities/dish.entity';
 import { DeleteDishInput, DeleteDishOutput } from './dtos/deleteDish.dto';
+import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
+import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
+import { SearchRestaurantInput, SearchRestaurantOutput } from './dtos/search-restaurant.dto';
+import { MyRestaurantsOutput } from './dtos/my-restaurants.dto';
+import { MyRestaurantInput, MyRestaurantOutput } from './dtos/my-restaurant.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -331,4 +336,113 @@ export class RestaurantService {
             }
         }
     }
+
+
+    async allRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
+        try {
+
+            const [restaurants, totalResults] = await this.restaurantRepository.findAndCount({
+                skip: (page - 1) * 3,
+                take: 3,
+            });
+
+
+            return {
+                ok: true,
+                results: restaurants,
+                totalPages: Math.ceil(totalResults / 3),
+                totalResults
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: 'Could not load restaurants',
+            }
+        }
+    }
+
+    async findRestaurantById({ restaurantId }: RestaurantInput): Promise<RestaurantOutput> {
+        try {
+            const restaurant = await this.restaurantRepository.findOne(restaurantId, {
+                relations: ['menu'],
+            });
+            if (!restaurant) {
+                return {
+                    ok: false,
+                    error: 'Restaurant not found',
+                }
+            }
+            return {
+                ok: true,
+                restaurant,
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: 'Could not find restaurant',
+            }
+        }
+    }
+
+    async searchRestaurantByName({ query, page }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
+        try {
+            const [restaurants, totalResults] = await this.restaurantRepository.findAndCount({
+                where: {
+                    // name: Like(`%${query}%`),
+                    name: Raw(name => `${name} ILIKE '%${query}%'`),
+
+                },
+                skip: (page - 1) * 3,
+                take: 3,
+            });
+
+            return {
+                ok: true,
+                restaurants,
+                totalResults,
+                totalPages: Math.ceil(totalResults / 3),
+            }
+        } catch (error) {
+            return {
+                ok: false,
+                error: 'Could not search for restaurants',
+            }
+        }
+    }
+    async myRestaurants(owner: User): Promise<MyRestaurantsOutput> {
+        try {
+            const restaurants = await this.restaurantRepository.find({ owner });
+            return {
+                restaurants,
+                ok: true,
+            };
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not find restaurants.',
+            };
+        }
+    };
+
+    async myRestaurant(
+        owner: User,
+        { id }: MyRestaurantInput,
+    ): Promise<MyRestaurantOutput> {
+        try {
+            const restaurant = await this.restaurantRepository.findOne(
+                { owner, id },
+                { relations: ['menu', 'orders'] },
+            );
+            return {
+                restaurant,
+                ok: true,
+            };
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not find restaurant',
+            };
+        }
+    }
+
 }
