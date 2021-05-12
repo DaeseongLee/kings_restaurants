@@ -1,7 +1,22 @@
 @tailwind base;
 @tailwind components;
 
+.formContainer {
+    @apply h-screen flex items-center flex-col mt-10 lg:mt-28
+}
+
+.inputContainer {
+    @apply w-full max-w-screen-sm flex flex-col px-5 items-center shadow-lg
+    
+}
+
+.form {
+    @apply grid gap-3 mt-5 w-full mb-5
+}
+
 .input {
     @apply p-3 focus:outline-none focus:border-purple-600 border-2 border-purple-200 text-lg transition-colors
 }
+
+
 @tailwind utilities;

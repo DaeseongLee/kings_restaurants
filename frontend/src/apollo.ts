@@ -1,12 +1,26 @@
 import { LOCAL_STORAGE_TOKEN } from './constant';
-import { ApolloClient, InMemoryCache, makeVar } from '@apollo/client';
+import { ApolloClient, createHttpLink, InMemoryCache, makeVar, } from '@apollo/client';
+import { setContext } from "@apollo/client/link/context";
 
 const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
 export const isLoggedInVar = makeVar(Boolean(token));
 export const authTokenVar = makeVar(token);
 
+const httpLink = createHttpLink({
+    uri: "http://localhost:4500/graphql",
+});
+
+const authLink = setContext((_, { headers }) => {
+    return {
+        headers: {
+            ...headers,
+            "x-jwt": authTokenVar() || "",
+        }
+    }
+});
+
 export const client = new ApolloClient({
-    uri: 'http://localhost:4500/graphql',
+    link: authLink.concat(httpLink),
     cache: new InMemoryCache({
         typePolicies: {
             Query: {
@@ -19,5 +33,5 @@ export const client = new ApolloClient({
                 }
             }
         }
-    })
+    }),
 });

@@ -1,11 +1,11 @@
 import { gql, useMutation } from '@apollo/client';
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { authTokenVar, isLoggedInVar } from '../apollo';
 import Button from '../components/button';
 import { FormError } from '../components/form-error';
+import { HelmetContainer } from '../components/helmet';
 import { LOCAL_STORAGE_TOKEN } from '../constant';
 import logo from "../images/cooking.png";
 import { loginMutation, loginMutationVariables } from '../__generated__/loginMutation';
@@ -59,16 +59,14 @@ export const Login = () => {
         }
     };
     return (
-        <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
-            <Helmet>
-                <title>Login | Nuber Eats</title>
-            </Helmet>
-            <div className="w-full max-w-screen-sm flex flex-col px-5 items-center shadow-lg">
+        <div className="formContainer">
+            <HelmetContainer title={'Login'} />
+            <div className="inputContainer">
                 <img src={logo} className="w-52 mb-10" alt="restaurants" />
                 <h4 className="w-full font-medium text-left text-3xl mb-5">
                     Welcome
                 </h4>
-                <form onSubmit={handleSubmit(onSubmit)} className="grid gap-3 mt-5 w-full mb-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="form">
                     <input {...register("email", {
                         required: "Email is required",
                         pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
