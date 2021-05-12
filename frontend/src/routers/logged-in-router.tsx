@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { isLoggedInVar } from "../apollo";
 
 export const LoggedInRouter = () => {
@@ -8,9 +9,8 @@ export const LoggedInRouter = () => {
     }
 
     return (
-        <div>
-            <h1>LoggedIn</h1>
-            <button onClick={onClick}>LogOut</button>
-        </div>
+        <Router>
+
+        </Router>
     )
 };
