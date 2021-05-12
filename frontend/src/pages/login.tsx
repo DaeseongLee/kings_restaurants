@@ -3,7 +3,12 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { authTokenVar, isLoggedInVar } from '../apollo';
+import Button from '../components/button';
+import { FormError } from '../components/form-error';
+import { LOCAL_STORAGE_TOKEN } from '../constant';
 import logo from "../images/cooking.png";
+import { loginMutation, loginMutationVariables } from '../__generated__/loginMutation';
 
 export const LOGIN_MUTATION = gql`
     mutation loginMutation($loginInput: LoginInput!) {
@@ -22,36 +27,72 @@ interface ILoginFrom {
 }
 
 export const Login = () => {
-    const { register, getValues, formState: { errors }, handleSubmit } = useForm<ILoginFrom>({
+    const { register, getValues, formState: { errors, isValid }, handleSubmit } = useForm<ILoginFrom>({
         mode: "onChange",
     });
-    const [loginMutation, { data, loading }] = useMutation(LOGIN_MUTATION)
-    const onSubmit = () => {
-        const email = "hsl5539@gmail.com", password = "1234";
-        loginMutation({
-            variables: {
-                email,
-                password,
-            }
-        })
+    const onCompleted = (data: loginMutation) => {
+        let { login: { ok, token } } = data;
+
+
+        if (ok && token) {
+            localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
+            isLoggedInVar(true);
+            authTokenVar(token);
+        }
     }
+    const [loginMutation, { data: loginMutationResult, loading }] = useMutation<loginMutation, loginMutationVariables>(LOGIN_MUTATION, {
+        onCompleted,
+    });
+
+
+    const onSubmit = () => {
+        if (!loading) {
+            const { email, password } = getValues();
+            loginMutation({
+                variables: {
+                    loginInput: {
+                        email,
+                        password,
+                    },
+                }
+            })
+        }
+    };
     return (
         <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
             <Helmet>
                 <title>Login | Nuber Eats</title>
             </Helmet>
-            <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
+            <div className="w-full max-w-screen-sm flex flex-col px-5 items-center shadow-lg">
                 <img src={logo} className="w-52 mb-10" alt="restaurants" />
                 <h4 className="w-full font-medium text-left text-3xl mb-5">
                     Welcome
                 </h4>
                 <form onSubmit={handleSubmit(onSubmit)} className="grid gap-3 mt-5 w-full mb-5">
-                    <input type="email" name="email" required placeholder="Email"
-                        className="input" />
-                    <input type="password" name="password" required placeholder="Password" className="input" />
-                    <button>Log In</button>
+                    <input {...register("email", {
+                        required: "Email is required",
+                        pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                    })}
+                        type="email" name="email" required placeholder="Email" className="input" />
+                    {errors.email?.message && (<FormError errorMessage={errors.email?.message} />)}
+                    {errors.email?.type === 'pattern' && (<FormError errorMessage={"Please enter a valid email"} />)}
+
+                    <input {...register("password", {
+                        required: "Password is required",
+                    })}
+                        type="password" name="password" required placeholder="Password" className="input" />
+                    {errors.password?.message && (<FormError errorMessage={errors.password?.message} />)}
+
+                    <Button
+                        canClick={isValid}
+                        loading={loading}
+                        actionText={"Log In"}
+                    >Log In</Button>
+                    {loginMutationResult?.login.error && (
+                        <FormError errorMessage={loginMutationResult.login.error} />
+                    )}
                 </form>
-                <div>
+                <div className="mb-9">
                     New to Account?{" "}
                     <Link to="/create-account" className="text-purple-400 hover:underline hover:text-purple-600">
                         Create an Account
