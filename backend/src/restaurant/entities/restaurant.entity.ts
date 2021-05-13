@@ -25,7 +25,7 @@ export class Restaurant extends CoreEntity {
 
     @Field(type => String, { nullable: true })
     @Column({ nullable: true })
-    coverImg?: string;
+    coverImg: string;
 
     @Field(type => User)
     @ManyToOne(
@@ -67,4 +67,12 @@ export class Restaurant extends CoreEntity {
         review => review.restaurant,
     )
     reviews: Review[];
+
+    @Field(type => Boolean, { nullable: true })
+    @Column({ nullable: true })
+    isPromoted?: boolean;
+
+    @Field(type => Date, { nullable: true })
+    @Column({ nullable: true })
+    promotedUntil?: Date;
 }

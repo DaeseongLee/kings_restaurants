@@ -20,9 +20,10 @@ import { Dish } from './entities/dish.entity';
 import { DeleteDishInput, DeleteDishOutput } from './dtos/deleteDish.dto';
 import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
 import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
-import { SearchRestaurantInput, SearchRestaurantOutput } from './dtos/search-restaurant.dto';
-import { MyRestaurantsOutput } from './dtos/my-restaurants.dto';
-import { MyRestaurantInput, MyRestaurantOutput } from './dtos/my-restaurant.dto';
+import { SearchRestaurantInput, SearchRestaurantOutput } from './dtos/searchRestaurant.dto';
+import { MyRestaurantInput, MyRestaurantOutput } from './dtos/myRestaurant.dto';
+import { MyRestaurantsOutput } from './dtos/myRestaurants.dto';
+
 
 @Injectable()
 export class RestaurantService {
