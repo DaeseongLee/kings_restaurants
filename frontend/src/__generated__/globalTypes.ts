@@ -35,6 +35,11 @@ export interface RestaurantsInput {
   page?: number | null;
 }
 
+export interface SearchRestaurantInput {
+  page?: number | null;
+  query: string;
+}
+
 //==============================================================
 // END Enums and Input Objects
 //==============================================================

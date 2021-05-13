@@ -4,13 +4,13 @@ import { Header } from '../components/header';
 import { useMe } from '../hooks/useMe';
 import Category from '../pages/clients/category';
 import { Restaurants } from '../pages/clients/restaurants';
+import Search from '../pages/clients/search';
 import { UserRole } from '../__generated__/globalTypes';
 
 const clientRoutes = [
     { path: "/", component: <Restaurants /> },
-    { path: "/category/:slug", component: <Category /> }
-
-
+    { path: "/category/:slug", component: <Category /> },
+    { path: "/search", component: <Search /> },
 ];
 
 export const LoggedInRouter = () => {
