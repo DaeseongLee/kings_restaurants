@@ -26,9 +26,28 @@ export interface CreateAccountInput {
   role: UserRole;
 }
 
+export interface CreateOrderInput {
+  restaurantId: number;
+  items: CreateOrderItemInput[];
+}
+
+export interface CreateOrderItemInput {
+  dishId: number;
+  options?: OrderItemOptionInputType[] | null;
+}
+
 export interface LoginInput {
   email: string;
   password: string;
+}
+
+export interface OrderItemOptionInputType {
+  name: string;
+  choice?: string | null;
+}
+
+export interface RestaurantInput {
+  restaurantId: number;
 }
 
 export interface RestaurantsInput {

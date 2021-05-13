@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Header } from '../components/header';
 import { useMe } from '../hooks/useMe';
 import Category from '../pages/clients/category';
+import RestaurantDetail from '../pages/clients/restaurantDetail';
 import { Restaurants } from '../pages/clients/restaurants';
 import Search from '../pages/clients/search';
 import { UserRole } from '../__generated__/globalTypes';
@@ -11,7 +12,9 @@ const clientRoutes = [
     { path: "/", component: <Restaurants /> },
     { path: "/category/:slug", component: <Category /> },
     { path: "/search", component: <Search /> },
+    { path: "/restaurant/:id", component: <RestaurantDetail /> },
 ];
+
 
 export const LoggedInRouter = () => {
     const { data, loading, error } = useMe();

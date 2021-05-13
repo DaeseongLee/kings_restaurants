@@ -18,5 +18,12 @@
     @apply p-3 focus:outline-none focus:border-purple-600 border-2 border-purple-200 text-lg transition-colors
 }
 
+.container {
+  @apply max-w-screen-2xl mx-auto;
+}
+
+.btn {
+  @apply text-lg font-medium focus:outline-none text-white py-4 transition-colors bg-purple-600 hover:bg-purple-700
+}
 
 @tailwind utilities;
