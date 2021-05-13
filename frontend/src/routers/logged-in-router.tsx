@@ -2,12 +2,13 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Header } from '../components/header';
 import { useMe } from '../hooks/useMe';
+import Category from '../pages/clients/category';
 import { Restaurants } from '../pages/clients/restaurants';
 import { UserRole } from '../__generated__/globalTypes';
 
 const clientRoutes = [
-    { path: "/", component: <Restaurants /> }
-
+    { path: "/", component: <Restaurants /> },
+    { path: "/category/:slug", component: <Category /> }
 
 
 ];

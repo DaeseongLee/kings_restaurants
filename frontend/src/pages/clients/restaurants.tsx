@@ -5,6 +5,7 @@ import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 import CategoryItem from '../../components/categoryItem';
 import { HelmetContainer } from '../../components/helmet';
+import Page from '../../components/page';
 import Restaurant from '../../components/restaurant';
 import { CATEGORY_FRAGMENT, RESTAURANT_FRAGMENT } from '../../fragments';
 import { restaurantsPageQuery, restaurantsPageQueryVariables } from '../../__generated__/restaurantsPageQuery';
@@ -94,27 +95,10 @@ export const Restaurants = () => {
                             />
                         ))}
                     </div>
-                    <div className="grid grid-cols-3 text-center max-w-md items-center mx-auto mt-10">
-                        {page > 1 ? (
-                            <button
-                                onClick={onPrevPageClick}
-                                className="focus:outline-none font-medium text-2xl"
-                            >
-                                &larr;
-                            </button>
-                        ) : (<div></div>)}
-                        <span>
-                            Page {page} of {data?.restaurants.totalPages}
-                        </span>
-                        {page !== data?.restaurants.totalPages ? (
-                            <button
-                                onClick={onNextPageClick}
-                                className="focus:outline-none font-medium text-2xl"
-                            >
-                                &rarr;
-                            </button>
-                        ) : (<div></div>)}
-                    </div>
+                    {data?.restaurants?.totalPages !== 0 &&
+                        <Page page={page} totalPage={data?.restaurants.totalPages}
+                            onNextPageClick={onNextPageClick} onPrevPageClick={onPrevPageClick} />
+                    }
                 </div>
             )}
         </div>
