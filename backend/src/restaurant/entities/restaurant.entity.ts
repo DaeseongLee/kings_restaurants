@@ -25,7 +25,7 @@ export class Restaurant extends CoreEntity {
 
     @Field(type => String, { nullable: true })
     @Column({ nullable: true })
-    coverImg: string;
+    coverImg?: string;
 
     @Field(type => User)
     @ManyToOne(
@@ -40,7 +40,7 @@ export class Restaurant extends CoreEntity {
     @Field(type => Category, { nullable: true })
     @ManyToOne(
         type => Category,
-        category => category.restaurants, { nullable: true, onDelete: 'SET NULL' }
+        category => category.restaurants, { nullable: true, onDelete: 'SET NULL', eager: true }
     )
     category: Category;
 
