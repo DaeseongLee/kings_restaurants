@@ -1,5 +1,5 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useState } from 'react';
+import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client';
+import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from '../../fragments';
 import { restaurant, restaurantVariables } from '../../__generated__/restaurant';
@@ -8,6 +8,12 @@ import { createOrder, createOrderVariables } from '../../__generated__/createOrd
 import { HelmetContainer } from '../../components/helmet';
 import Dish from '../../components/dish';
 import DishOption from '../../components/dishOptionst';
+import Review from '../../components/review';
+import StarRatingComponent from 'react-star-rating-component';
+import { useForm } from 'react-hook-form';
+import { useMe } from '../../hooks/useMe';
+import { createReview, createReviewVariables } from '../../__generated__/createReview';
+import { reviews, reviewsVariables } from '../../__generated__/reviews';
 
 const RESTAURANT_QUERY = gql`
     query restaurant($input: RestaurantInput!) {
@@ -19,12 +25,32 @@ const RESTAURANT_QUERY = gql`
                 menu{
                     ...DishParts
                 }
+                
             }
         }
     }
     ${RESTAURANT_FRAGMENT}
     ${DISH_FRAGMENT}
 `;
+
+const REVIEWS_QUERY = gql`
+ query reviews($input: ReviewsInput!) {
+      reviews(input: $input) {
+            ok
+            error
+            reviews {
+                id
+                updatedAt
+                comment
+                star
+                reviewer{
+                    email
+                }
+            }
+            reviewTotal
+        }
+    }
+`
 
 const CREATE_ORDER_MUTATION = gql`
     mutation createOrder($input: CreateOrderInput!) {
@@ -36,13 +62,29 @@ const CREATE_ORDER_MUTATION = gql`
     }
 `;
 
+const CREATE_REVIEW_MUTATION = gql`
+    mutation createReview($input: CreateReviewInput!) {
+        createReview(input: $input) {
+            ok
+            error
+        }
+    }
+`
+
 interface IRestaurantParams {
     id: string;
 }
 
+interface IForm {
+    comment: string;
+}
 
 const RestaurantDetail = () => {
+    const me = useMe();
+
     const params = useParams<IRestaurantParams>();
+    const { register, handleSubmit, getValues, setValue } = useForm<IForm>();
+
     const { loading, data } = useQuery<restaurant, restaurantVariables>(RESTAURANT_QUERY, {
         variables: {
             input: {
@@ -50,6 +92,16 @@ const RestaurantDetail = () => {
             }
         }
     });
+
+    const { data: reviewData } = useQuery<reviews, reviewsVariables>(REVIEWS_QUERY, {
+        variables: {
+            input: {
+                restaurantId: +params.id,
+            }
+        }
+    });
+    console.log(data);
+    console.log(reviewData);
     const [orderStarted, setOrderStarted] = useState(false);
     const [orderItem, setOrderItem] = useState<CreateOrderItemInput[]>([]);
     const [seletedOptionItem, setSeletedOptionItem] = useState();
@@ -152,6 +204,44 @@ const RestaurantDetail = () => {
         }
     }
 
+    const reviewOnCompleted = (data: createReview) => {
+        const { createReview: { ok } } = data;
+        setValue('comment', '');
+    }
+    const [createReviewMutation, { loading: reviewLoading }] = useMutation<createReview, createReviewVariables>(CREATE_REVIEW_MUTATION, {
+        onCompleted: reviewOnCompleted,
+        refetchQueries: [{
+            query: REVIEWS_QUERY,
+            variables: {
+                input: {
+                    restaurantId: +params.id,
+                }
+            }
+        }]
+
+    });
+    const [rating, setRating] = useState({ rating: 1 });
+    const onStarClick = (nextValue: number, prevValue: number, name: string) => {
+        setRating({ rating: nextValue });
+    }
+
+
+
+    const onsubmit = () => {
+        const { comment } = getValues();
+        if (comment) {
+            createReviewMutation({
+                variables: {
+                    input: {
+                        comment,
+                        star: rating.rating,
+                        restaurantId: +params.id,
+                    }
+                }
+            })
+        }
+    }
+
     return (
         <div>
             <HelmetContainer title={data?.restaurant?.restaurant?.name || ""} />
@@ -207,6 +297,45 @@ const RestaurantDetail = () => {
 
                         </Dish>
                     ))}
+                </div>
+                {reviewData?.reviews.reviews?.length &&
+                    <div className="w-full mt-16 border-t-2 flex flex-col">
+                        <div className="ml-4">
+                            <span className="mt-4">Review {reviewData?.reviews.reviews.length}개</span>
+                            <span className="ml-5">평점: {reviewData?.reviews.reviewTotal}/ 5 </span>
+                        </div>
+                        {reviewData?.reviews.reviews?.map(review => (
+                            <Review key={review.id}
+                                comment={review.comment}
+                                star={review.star}
+                                updatedAt={review.updatedAt}
+                                reviewer={review.reviewer?.email}
+                                loginUser={me.data?.me.email}
+                            />
+                        ))
+                        }
+                    </div>
+                }
+                <div className="w-full mt-16 border-t-2 flex flex-col  ">
+                    <div className="mt-5 ml-4">
+                        <StarRatingComponent
+                            name="rate1"
+                            starCount={5}
+                            value={rating.rating}
+                            onStarClick={onStarClick}
+                        />
+                    </div>
+                    <div className="w-full ml-4 border-2 border-gray-100">
+                        <form onSubmit={handleSubmit(onsubmit)}  >
+                            <input
+                                {...register("comment")}
+                                name="comment"
+                                type="text"
+                                placeholder="comment"
+                                className="input rounded-md border-0 w-full "
+                            />
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

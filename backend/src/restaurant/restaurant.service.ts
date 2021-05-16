@@ -1,3 +1,4 @@
+import { ReviewsInput, ReviewsOutput } from './dtos/reviews.dto';
 import { EditDishInput, EditDishOutput } from './dtos/editDish.dto';
 import { Review } from './entities/review.entity';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
@@ -367,6 +368,7 @@ export class RestaurantService {
             const restaurant = await this.restaurantRepository.findOne(restaurantId, {
                 relations: ['menu'],
             });
+
             if (!restaurant) {
                 return {
                     ok: false,
@@ -378,9 +380,10 @@ export class RestaurantService {
                 restaurant,
             }
         } catch (error) {
+            console.error(error);
             return {
                 ok: false,
-                error: 'Could not find restaurant',
+                error: 'Could not findRestaurant',
             }
         }
     }
@@ -444,6 +447,45 @@ export class RestaurantService {
                 error: 'Could not find restaurant',
             };
         }
-    }
+    };
+
+    async reviews(input: ReviewsInput): Promise<ReviewsOutput> {
+        try {
+            const restaurant = await this.restaurantRepository.findOne(input.restaurantId);
+
+            if (!restaurant) {
+                return {
+                    ok: false,
+                    error: 'Could not find restaurant',
+                };
+            }
+            const reviews = await this.reviewRepository.find({
+                where: {
+                    restaurant
+                },
+                order: { updatedAt: 'DESC' }
+            });
+
+            let reviewTotal = 0;
+            if (reviews.length !== 0) {
+                let score = 0;
+                reviews.forEach((review) => (
+                    score = score + review.star
+                ));
+
+                reviewTotal = +(score / reviews.length).toFixed(1);
+            };
+            return {
+                reviews,
+                reviewTotal,
+                ok: true,
+            };
+        } catch {
+            return {
+                ok: false,
+                error: 'Could not reviews.',
+            };
+        }
+    };
 
 }

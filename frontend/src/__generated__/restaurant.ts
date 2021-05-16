@@ -44,7 +44,6 @@ export interface restaurant_restaurant_restaurant {
   coverImg: string | null;
   category: restaurant_restaurant_restaurant_category | null;
   address: string;
-  isPromoted: boolean | null;
   menu: restaurant_restaurant_restaurant_menu[];
 }
 

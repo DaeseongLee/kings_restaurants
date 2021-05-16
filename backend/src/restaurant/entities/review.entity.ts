@@ -29,10 +29,11 @@ export class Review extends CoreEntity {
     @RelationId((review: Review) => review.restaurant)
     restaurantId: number;
 
-    @Field(type => User)
+    @Field(type => User, { nullable: true })
     @ManyToOne(
         type => User,
-        user => user.reviews
+        user => user.reviews,
+        { eager: true }
     )
     reviewer: User;
 

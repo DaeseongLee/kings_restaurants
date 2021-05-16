@@ -36,6 +36,12 @@ export interface CreateOrderItemInput {
   options?: OrderItemOptionInputType[] | null;
 }
 
+export interface CreateReviewInput {
+  restaurantId: number;
+  star: number;
+  comment: string;
+}
+
 export interface LoginInput {
   email: string;
   password: string;
@@ -52,6 +58,10 @@ export interface RestaurantInput {
 
 export interface RestaurantsInput {
   page?: number | null;
+}
+
+export interface ReviewsInput {
+  restaurantId: number;
 }
 
 export interface SearchRestaurantInput {

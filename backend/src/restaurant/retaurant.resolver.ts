@@ -23,6 +23,7 @@ import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
 import { SearchRestaurantInput, SearchRestaurantOutput } from './dtos/searchRestaurant.dto';
 import { MyRestaurantInput, MyRestaurantOutput } from './dtos/myRestaurant.dto';
 import { MyRestaurantsOutput } from './dtos/myRestaurants.dto';
+import { ReviewsInput, ReviewsOutput } from './dtos/reviews.dto';
 
 @Resolver(of => Restaurant)
 export class RestaurantResolver {
@@ -119,6 +120,12 @@ export class ReviewResolver {
     deleteReview(@AuthUser() reviewer: User, @Args('input') input: DeleteReviewInput): Promise<DeleteReviewOutput> {
         return this.restaurantService.deleteReview(reviewer, input);
     }
+
+    @Query(type => ReviewsOutput)
+    reviews(@Args('input') input: ReviewsInput): Promise<ReviewsOutput> {
+        return this.restaurantService.reviews(input);
+    }
+
 }
 
 @Resolver(of => Dish)

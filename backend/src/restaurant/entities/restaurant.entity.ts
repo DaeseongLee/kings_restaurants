@@ -68,6 +68,9 @@ export class Restaurant extends CoreEntity {
     )
     reviews: Review[];
 
+    @Field(type => Number, { nullable: true })
+    reviewTotal?: number;
+
     @Field(type => Boolean, { nullable: true })
     @Column({ nullable: true })
     isPromoted?: boolean;
