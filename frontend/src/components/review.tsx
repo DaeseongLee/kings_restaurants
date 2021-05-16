@@ -14,9 +14,6 @@ interface IProps {
     deleteReviewBtnClick: (id: number) => void;
 }
 
-
-
-
 const Review: React.FC<IProps> = ({
     id,
     star,

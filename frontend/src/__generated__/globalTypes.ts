@@ -46,6 +46,12 @@ export interface DeleteReviewInput {
   reviewId: number;
 }
 
+export interface EditProfileInput {
+  password?: string | null;
+  address?: string | null;
+  phone?: string | null;
+}
+
 export interface EditReviewInput {
   star: number;
   comment: string;

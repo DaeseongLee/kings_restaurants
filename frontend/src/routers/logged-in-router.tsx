@@ -1,12 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { NotFound } from '../components/404';
 import { Header } from '../components/header';
 import { useMe } from '../hooks/useMe';
 import Category from '../pages/clients/category';
 import RestaurantDetail from '../pages/clients/restaurantDetail';
 import { Restaurants } from '../pages/clients/restaurants';
 import Search from '../pages/clients/search';
+import EditProfile from '../pages/user/editProfile';
 import { UserRole } from '../__generated__/globalTypes';
+
+const commonRoutes = [
+    { path: "/edit-profile", component: <EditProfile /> }
+]
 
 const clientRoutes = [
     { path: "/", component: <Restaurants /> },
@@ -50,6 +56,16 @@ export const LoggedInRouter = () => {
                         </Route>
                     ))
                 }
+                {
+                    commonRoutes.map(route => (
+                        <Route exact key={route.path} path={route.path}>
+                            {route.component}
+                        </Route>
+                    ))
+                }
+                <Route>
+                    <NotFound />
+                </Route>
             </Switch>
         </Router>
     )
