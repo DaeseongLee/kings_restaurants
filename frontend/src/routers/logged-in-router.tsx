@@ -7,11 +7,15 @@ import Category from '../pages/clients/category';
 import RestaurantDetail from '../pages/clients/restaurantDetail';
 import { Restaurants } from '../pages/clients/restaurants';
 import Search from '../pages/clients/search';
+import ConfirmEmail from '../pages/user/confirmEmail';
 import EditProfile from '../pages/user/editProfile';
+import Order from '../pages/user/order';
 import { UserRole } from '../__generated__/globalTypes';
 
 const commonRoutes = [
-    { path: "/edit-profile", component: <EditProfile /> }
+    { path: "/confirm", component: <ConfirmEmail />, },
+    { path: "/edit-profile", component: <EditProfile />, },
+    { path: "/orders/:id", component: <Order />, },
 ]
 
 const clientRoutes = [

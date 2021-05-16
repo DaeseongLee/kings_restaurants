@@ -4,11 +4,10 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL fragment: EditedUser
+// GraphQL fragment: VerifiedUser
 // ====================================================
 
-export interface EditedUser {
+export interface VerifiedUser {
   __typename: "User";
-  address: string;
-  phone: string;
+  verified: boolean;
 }

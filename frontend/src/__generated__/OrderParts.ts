@@ -4,11 +4,12 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL fragment: EditedUser
+// GraphQL fragment: OrderParts
 // ====================================================
 
-export interface EditedUser {
-  __typename: "User";
-  address: string;
-  phone: string;
+export interface OrderParts {
+  __typename: "Order";
+  id: number;
+  createdAt: any;
+  totalPrice: number | null;
 }
