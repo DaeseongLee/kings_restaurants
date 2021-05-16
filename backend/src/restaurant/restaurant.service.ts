@@ -228,6 +228,7 @@ export class RestaurantService {
         try {
 
             const result = await this.findReview(reviewer, input.reviewId);
+
             if (!result.ok) return result;
 
             const newReview = await this.reviewRepository.save({

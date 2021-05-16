@@ -42,6 +42,16 @@ export interface CreateReviewInput {
   comment: string;
 }
 
+export interface DeleteReviewInput {
+  reviewId: number;
+}
+
+export interface EditReviewInput {
+  star: number;
+  comment: string;
+  reviewId: number;
+}
+
 export interface LoginInput {
   email: string;
   password: string;

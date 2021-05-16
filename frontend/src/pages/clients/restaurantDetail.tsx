@@ -14,6 +14,8 @@ import { useForm } from 'react-hook-form';
 import { useMe } from '../../hooks/useMe';
 import { createReview, createReviewVariables } from '../../__generated__/createReview';
 import { reviews, reviewsVariables } from '../../__generated__/reviews';
+import { editReview, editReviewVariables } from '../../__generated__/editReview';
+import { deleteReview, deleteReviewVariables } from '../../__generated__/deleteReview';
 
 const RESTAURANT_QUERY = gql`
     query restaurant($input: RestaurantInput!) {
@@ -71,6 +73,23 @@ const CREATE_REVIEW_MUTATION = gql`
     }
 `
 
+const EDIT_REVIEW_MUTATION = gql`
+    mutation editReview($input: EditReviewInput!) {
+        editReview(input: $input) {
+            ok
+            error
+        }
+    }
+`;
+const DELETE_REVIEW_MUTATION = gql`
+    mutation deleteReview($input: DeleteReviewInput!) {
+        deleteReview(input: $input) {
+            ok
+            error
+        }
+    }
+`;
+
 interface IRestaurantParams {
     id: string;
 }
@@ -80,10 +99,17 @@ interface IForm {
 }
 
 const RestaurantDetail = () => {
+    const [orderStarted, setOrderStarted] = useState(false);
+    const [orderItem, setOrderItem] = useState<CreateOrderItemInput[]>([]);
+    const [seletedOptionItem, setSeletedOptionItem] = useState();
+
+    const history = useHistory();
     const me = useMe();
 
     const params = useParams<IRestaurantParams>();
-    const { register, handleSubmit, getValues, setValue } = useForm<IForm>();
+    const { register, handleSubmit, getValues, setValue } = useForm<IForm>({
+        mode: 'onChange',
+    });
 
     const { loading, data } = useQuery<restaurant, restaurantVariables>(RESTAURANT_QUERY, {
         variables: {
@@ -100,11 +126,8 @@ const RestaurantDetail = () => {
             }
         }
     });
-    console.log(data);
-    console.log(reviewData);
-    const [orderStarted, setOrderStarted] = useState(false);
-    const [orderItem, setOrderItem] = useState<CreateOrderItemInput[]>([]);
-    const [seletedOptionItem, setSeletedOptionItem] = useState();
+
+
     const triggerStartOrder = () => {
         setOrderStarted(true);
     }
@@ -172,7 +195,7 @@ const RestaurantDetail = () => {
         setOrderStarted(false);
         setOrderItem([]);
     };
-    const history = useHistory();
+
     const onCompleted = (data: createOrder) => {
         const {
             createOrder: { ok, orderId },
@@ -202,30 +225,37 @@ const RestaurantDetail = () => {
                 }
             })
         }
-    }
+    };
 
     const reviewOnCompleted = (data: createReview) => {
         const { createReview: { ok } } = data;
         setValue('comment', '');
     }
+    const refetchQueries = [{
+        query: REVIEWS_QUERY,
+        variables: {
+            input: {
+                restaurantId: +params.id,
+            }
+        }
+    }];
     const [createReviewMutation, { loading: reviewLoading }] = useMutation<createReview, createReviewVariables>(CREATE_REVIEW_MUTATION, {
         onCompleted: reviewOnCompleted,
-        refetchQueries: [{
-            query: REVIEWS_QUERY,
-            variables: {
-                input: {
-                    restaurantId: +params.id,
-                }
-            }
-        }]
-
+        refetchQueries
     });
+
+
+    const [editReviewMutation] = useMutation<editReview, editReviewVariables>(EDIT_REVIEW_MUTATION, {
+        refetchQueries
+    });
+    const [deleteReviewMutation] = useMutation<deleteReview, deleteReviewVariables>(DELETE_REVIEW_MUTATION, {
+        refetchQueries
+    });
+
     const [rating, setRating] = useState({ rating: 1 });
     const onStarClick = (nextValue: number, prevValue: number, name: string) => {
         setRating({ rating: nextValue });
-    }
-
-
+    };
 
     const onsubmit = () => {
         const { comment } = getValues();
@@ -242,6 +272,28 @@ const RestaurantDetail = () => {
         }
     }
 
+    const editReviewBtnClick = (id: number, comment: string, star: number) => {
+        if (comment) {
+            editReviewMutation({
+                variables: {
+                    input: {
+                        comment,
+                        star,
+                        reviewId: id
+                    }
+                }
+            });
+        };
+    };
+    const deleteReviewBtnClick = (id: number) => {
+        deleteReviewMutation({
+            variables: {
+                input: {
+                    reviewId: id
+                }
+            }
+        });
+    };
     return (
         <div>
             <HelmetContainer title={data?.restaurant?.restaurant?.name || ""} />
@@ -306,11 +358,15 @@ const RestaurantDetail = () => {
                         </div>
                         {reviewData?.reviews.reviews?.map(review => (
                             <Review key={review.id}
+                                id={review.id}
                                 comment={review.comment}
                                 star={review.star}
                                 updatedAt={review.updatedAt}
                                 reviewer={review.reviewer?.email}
                                 loginUser={me.data?.me.email}
+                                editReviewBtnClick={editReviewBtnClick}
+                                deleteReviewBtnClick={deleteReviewBtnClick}
+
                             />
                         ))
                         }
@@ -334,6 +390,9 @@ const RestaurantDetail = () => {
                                 placeholder="comment"
                                 className="input rounded-md border-0 w-full "
                             />
+                            <button className="px-5 mr-3 border-2 border-black hover:bg-gray-400">
+                                입력
+                            </button>
                         </form>
                     </div>
                 </div>
