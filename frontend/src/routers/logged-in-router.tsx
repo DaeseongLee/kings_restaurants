@@ -15,7 +15,7 @@ import { UserRole } from '../__generated__/globalTypes';
 const commonRoutes = [
     { path: "/confirm", component: <ConfirmEmail />, },
     { path: "/edit-profile", component: <EditProfile />, },
-    { path: "/orders/:id", component: <Order />, },
+    { path: "/order/:id", component: <Order />, },
 ]
 
 const clientRoutes = [

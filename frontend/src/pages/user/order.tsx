@@ -56,24 +56,34 @@ const Order = () => {
             },
         },
     });
-
+    console.log("data", data);
     useEffect(() => {
         if (data?.getOrder.ok) {
             subscribeToMore({
                 document: ORDER_SUBSCRIPTION,
-                variables: { input: +params.id },
-                updateQuery: (prev, { subscriptionData: { data } }: { subscriptionData: { data: orderUpdates } }) => {
+                variables: {
+                    input: {
+                        id: +params.id,
+                    },
+                },
+                updateQuery: (
+                    prev,
+                    {
+                        subscriptionData: { data },
+                    }: { subscriptionData: { data: orderUpdates } }
+                ) => {
                     if (!data) return prev;
+                    console.log('data@@@', data);
                     return {
                         getOrder: {
                             ...prev.getOrder,
                             order: {
-                                ...data.orderUpdates
+                                ...data.orderUpdates,
                             },
-                        }
-                    }
-                }
-            })
+                        },
+                    };
+                },
+            });
         }
     }, [data]);
 

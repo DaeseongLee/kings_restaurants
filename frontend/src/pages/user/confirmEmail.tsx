@@ -4,6 +4,7 @@ import { useHistory } from 'react-router';
 import { HelmetContainer } from '../../components/helmet';
 import { useMe } from '../../hooks/useMe';
 import { verifyEmail, verifyEmailVariables } from '../../__generated__/verifyEmail';
+
 const VERIFY_EMAIL_MUTATION = gql`
     mutation verifyEmail($input: VerifyEmailInput!) {
         verifyEmail(input: $input) {
@@ -34,21 +35,21 @@ const ConfirmEmail = () => {
             });
             history.push("/");
         };
-        const [verifyEmail] = useMutation<verifyEmail, verifyEmailVariables>(VERIFY_EMAIL_MUTATION, {
-            onCompleted,
-        });
-
-        useEffect(() => {
-            const [_, code] = window.location.href.split("code=");
-            verifyEmail({
-                variables: {
-                    input: {
-                        code,
-                    }
-                }
-            })
-        }, [])
     }
+    const [verifyEmail] = useMutation<verifyEmail, verifyEmailVariables>(VERIFY_EMAIL_MUTATION, {
+        onCompleted,
+    });
+
+    useEffect(() => {
+        const [_, code] = window.location.href.split("code=");
+        verifyEmail({
+            variables: {
+                input: {
+                    code,
+                }
+            }
+        })
+    }, []);
     return (
         <div>
             <HelmetContainer title={"Verify Email"} />

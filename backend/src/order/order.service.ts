@@ -95,7 +95,8 @@ export class OrderService {
 
     canSeeOrder(user: User, order: Order): boolean {
         let canSee = true;
-        if (user.role === UserRole.Client && order.clientId! == user.id) {
+
+        if (user.role === UserRole.Client && order.clientId !== user.id) {
             canSee = false;
         }
         if (user.role === UserRole.Delievery && order.driverId !== user.id) {
