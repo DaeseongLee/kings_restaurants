@@ -44,6 +44,13 @@ export interface CreateOrderItemInput {
   options?: OrderItemOptionInputType[] | null;
 }
 
+export interface CreateRestaurantInput {
+  name: string;
+  address: string;
+  coverImg?: string | null;
+  categoryName: string;
+}
+
 export interface CreateReviewInput {
   restaurantId: number;
   star: number;

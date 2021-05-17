@@ -40,6 +40,7 @@ export class RestaurantService {
             newRestaurant.owner = owner;
             const category = await this.categoryRepository.getOrCreate(input.categoryName);
             newRestaurant.category = category;
+
             await this.restaurantRepository.save(newRestaurant);
             return {
                 ok: true,

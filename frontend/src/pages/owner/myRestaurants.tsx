@@ -1,11 +1,11 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useApolloClient, useQuery } from '@apollo/client';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { HelmetContainer } from '../../components/helmet';
 import Restaurant from '../../components/restaurant';
 import { RESTAURANT_FRAGMENT } from '../../fragments';
 import { myRestaurants } from '../../__generated__/myRestaurants';
-export const MY_RESTAURANT_QUERY = gql`
+export const MY_RESTAURANTS_QUERY = gql`
     query myRestaurants {
         myRestaurants {
             ok
@@ -19,7 +19,8 @@ export const MY_RESTAURANT_QUERY = gql`
 `
 
 const MyRestaurant = () => {
-    const { data } = useQuery<myRestaurants>(MY_RESTAURANT_QUERY);
+    const { data } = useQuery<myRestaurants>(MY_RESTAURANTS_QUERY);
+
     return (
         <div>
             <HelmetContainer title={"My Restaurants"} />
@@ -28,8 +29,9 @@ const MyRestaurant = () => {
                 {data?.myRestaurants.ok && data.myRestaurants.restaurants.length === 0 ? (
                     <>
                         <h4 className="text-xl mb-5">You have no restaurants.</h4>
-                        <Link className="text-purple-600 hover:underline" to="/add-restaurant"></Link>
-                        Create one &rarr;
+                        <Link className="text-purple-600 hover:underline" to="/add-restaurant">
+                            Create one &rarr;
+                        </Link>
                     </>
                 ) : (
                     <div className="grid mt-16 lg:grid-cols-3 gap-x-5 gap-y-10">

@@ -7,6 +7,8 @@ import Category from '../pages/clients/category';
 import RestaurantDetail from '../pages/clients/restaurantDetail';
 import { Restaurants } from '../pages/clients/restaurants';
 import Search from '../pages/clients/search';
+import AddRestaurants from '../pages/owner/addRestaurants';
+import MyRestaurant from '../pages/owner/myRestaurants';
 import ConfirmEmail from '../pages/user/confirmEmail';
 import EditProfile from '../pages/user/editProfile';
 import Order from '../pages/user/order';
@@ -25,6 +27,12 @@ const clientRoutes = [
     { path: "/restaurant/:id", component: <RestaurantDetail /> },
 ];
 
+const ownerRoutes = [
+    { path: "/", component: <MyRestaurant /> },
+    { path: "/add-restaurant", component: <AddRestaurants /> },
+    { path: "/search", component: <Search /> },
+    { path: "/restaurant/:id", component: <RestaurantDetail /> },
+];
 
 export const LoggedInRouter = () => {
     const { data, loading, error } = useMe();
@@ -47,7 +55,7 @@ export const LoggedInRouter = () => {
                     ))
                 }
                 {data.me.role === UserRole.Owner &&
-                    clientRoutes.map(route => (
+                    ownerRoutes.map(route => (
                         <Route exact key={route.path} path={route.path}>
                             {route.component}
                         </Route>
