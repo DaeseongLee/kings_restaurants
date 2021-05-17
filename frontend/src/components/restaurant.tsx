@@ -14,7 +14,6 @@ const Restaurant: React.FC<IRestaurantProps> = ({
     name,
     categoryName,
 }) => {
-    console.log(id, coverImg, name, categoryName);
     return (
         <Link to={`/restaurant/${id}`} >
             <div className="flex flex-col">

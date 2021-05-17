@@ -73,7 +73,6 @@ const Order = () => {
                     }: { subscriptionData: { data: orderUpdates } }
                 ) => {
                     if (!data) return prev;
-                    console.log('data@@@', data);
                     return {
                         getOrder: {
                             ...prev.getOrder,

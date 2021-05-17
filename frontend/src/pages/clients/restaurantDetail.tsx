@@ -1,7 +1,7 @@
 import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
-import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from '../../fragments';
+import { DISH_FRAGMENT, RESTAURANT_FRAGMENT, REVIEWS_FRAGMENT } from '../../fragments';
 import { restaurant, restaurantVariables } from '../../__generated__/restaurant';
 import { CreateOrderItemInput } from '../../__generated__/globalTypes';
 import { createOrder, createOrderVariables } from '../../__generated__/createOrder';
@@ -41,17 +41,12 @@ const REVIEWS_QUERY = gql`
             ok
             error
             reviews {
-                id
-                updatedAt
-                comment
-                star
-                reviewer{
-                    email
-                }
+               ...ReviewsParts
             }
             reviewTotal
         }
     }
+    ${REVIEWS_FRAGMENT}
 `
 
 const CREATE_ORDER_MUTATION = gql`

@@ -64,3 +64,14 @@ export const FULL_ORDER_FRAGMENT = gql`
         }
     }
 `;
+export const REVIEWS_FRAGMENT = gql`
+    fragment ReviewsParts on Review {
+        id
+        updatedAt
+        comment
+        star
+        reviewer{
+            email
+        }
+    }
+`;

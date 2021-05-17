@@ -18,7 +18,7 @@ export const MY_RESTAURANTS_QUERY = gql`
     ${RESTAURANT_FRAGMENT}
 `
 
-const MyRestaurant = () => {
+const MyRestaurants = () => {
     const { data } = useQuery<myRestaurants>(MY_RESTAURANTS_QUERY);
 
     return (
@@ -51,4 +51,4 @@ const MyRestaurant = () => {
     );
 };
 
-export default MyRestaurant;
+export default MyRestaurants;

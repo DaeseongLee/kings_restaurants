@@ -7,8 +7,10 @@ import Category from '../pages/clients/category';
 import RestaurantDetail from '../pages/clients/restaurantDetail';
 import { Restaurants } from '../pages/clients/restaurants';
 import Search from '../pages/clients/search';
+import AddDish from '../pages/owner/addDish';
 import AddRestaurants from '../pages/owner/addRestaurants';
-import MyRestaurant from '../pages/owner/myRestaurants';
+import MyRestaurant from '../pages/owner/myRestaurant';
+import MyRestaurants from '../pages/owner/myRestaurants';
 import ConfirmEmail from '../pages/user/confirmEmail';
 import EditProfile from '../pages/user/editProfile';
 import Order from '../pages/user/order';
@@ -28,10 +30,10 @@ const clientRoutes = [
 ];
 
 const ownerRoutes = [
-    { path: "/", component: <MyRestaurant /> },
+    { path: "/", component: <MyRestaurants /> },
     { path: "/add-restaurant", component: <AddRestaurants /> },
-    { path: "/search", component: <Search /> },
-    { path: "/restaurant/:id", component: <RestaurantDetail /> },
+    { path: "/restaurant/:restaurantId/add-dish", component: <AddDish /> },
+    { path: "/restaurant/:id", component: <MyRestaurant /> },
 ];
 
 export const LoggedInRouter = () => {

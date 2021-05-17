@@ -10,8 +10,8 @@ interface IProps {
     updatedAt: Date;
     reviewer: string | undefined;
     loginUser: string | undefined;
-    editReviewBtnClick: (id: number, comment: string, star: number) => void;
-    deleteReviewBtnClick: (id: number) => void;
+    editReviewBtnClick?: (id: number, comment: string, star: number) => void;
+    deleteReviewBtnClick?: (id: number) => void;
 }
 
 const Review: React.FC<IProps> = ({
@@ -39,13 +39,13 @@ const Review: React.FC<IProps> = ({
     }
 
     const deleteReview = () => {
-        deleteReviewBtnClick(id);
+        deleteReviewBtnClick && deleteReviewBtnClick(id);
     }
 
     const onsubmit = () => {
         setIsUpdated(false);
         const { comment } = getValues();
-        editReviewBtnClick(id, comment, rating.rating);
+        editReviewBtnClick && editReviewBtnClick(id, comment, rating.rating);
     }
     return (
         <div>

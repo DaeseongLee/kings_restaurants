@@ -437,8 +437,19 @@ export class RestaurantService {
         try {
             const restaurant = await this.restaurantRepository.findOne(
                 { owner, id },
-                { relations: ['menu', 'orders'] },
+                { relations: ['menu', 'orders', 'reviews'] },
             );
+
+
+            if (restaurant.reviews.length !== 0) {
+                let reviewTotal = 0;
+                let score = 0;
+                restaurant.reviews.forEach((review) => (
+                    score = score + review.star
+                ));
+                reviewTotal = +(score / restaurant.reviews.length).toFixed(1);
+                restaurant.reviewTotal = +reviewTotal;
+            };
             return {
                 restaurant,
                 ok: true,
