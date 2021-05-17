@@ -56,7 +56,7 @@ const Order = () => {
             },
         },
     });
-    console.log("data", data);
+
     useEffect(() => {
         if (data?.getOrder.ok) {
             subscribeToMore({
@@ -73,6 +73,7 @@ const Order = () => {
                     }: { subscriptionData: { data: orderUpdates } }
                 ) => {
                     if (!data) return prev;
+
                     return {
                         getOrder: {
                             ...prev.getOrder,

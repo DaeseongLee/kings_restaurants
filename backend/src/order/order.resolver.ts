@@ -69,13 +69,19 @@ export class OrderResolver {
     }
 
     @Subscription(returns => Order, {
-        filter: ({ orderUpdates: order }: { orderUpdates: Order }, { input }: { input: OrderUpdateInput }, { user }: { user: User }) => {
+        filter: (
+            { orderUpdates: order }: { orderUpdates: Order },
+            { input }: { input: OrderUpdateInput },
+            { user }: { user: User }
+        ) => {
+            console.log("ownerId:", order.restaurant.ownerId, "user", user.id);
             if (order.driverId !== user.id &&
                 order.clientId !== user.id &&
-                order.restaurant.ownerId! == user.id
+                order.restaurant.ownerId !== user.id
             ) return false;
             return order.id === input.id
-        }
+        },
+        resolve: ({ orderUpdates: order }) => order
     })
     @Role(['Any'])
     orderUpdates(@Args('input') input: OrderUpdateInput) {

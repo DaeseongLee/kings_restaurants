@@ -61,14 +61,14 @@ const MyRestaurant = () => {
             }
         }
     });
-    console.log(data);
 
     const { data: subscriptionData } = useSubscription<pendingOrders>(PENDING_ORDERS_SUBSCRIPTION);
     useEffect(() => {
         if (subscriptionData?.pendingOrders.id) {
-            history.push(`/orders/${subscriptionData.pendingOrders.id}`);
+            history.push(`/order/${subscriptionData.pendingOrders.id}`);
         }
     }, [subscriptionData]);
+    console.log(subscriptionData);
     return (
         <div>
             <HelmetContainer title={data?.myRestaurant.restaurant?.name || "Loading..."} />

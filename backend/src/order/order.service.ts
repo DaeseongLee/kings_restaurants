@@ -110,6 +110,7 @@ export class OrderService {
 
     async editOrder(user: User, { id: orderId, orderStatus }: EditOrderInput): Promise<EditOrderOutput> {
         try {
+            console.log("user!!!!", user.email, user.role);
             const order = await this.orderRepository.findOne(orderId);
             if (!order) {
                 return {
@@ -153,7 +154,9 @@ export class OrderService {
             if (user.role === UserRole.Owner && orderStatus === OrderStatus.Cooked) {
                 await this.pubSub.publish(NEW_COOKED_ORDER, { cookedOrders: updateOrder });
             };
+            console.log("updateOrder!!!!", updateOrder);
             await this.pubSub.publish(NEW_ORDER_UPDATE, { orderUpdates: updateOrder });
+
             return {
                 ok: true,
             }

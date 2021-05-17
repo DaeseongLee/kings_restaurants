@@ -46,6 +46,7 @@ export const Restaurants = () => {
             }
         }
     })
+    console.log(data);
     const onNextPageClick = useCallback(() => {
         setPage(current => current + 1);
     }, []);
