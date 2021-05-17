@@ -19,6 +19,7 @@ import { OrderModule } from './order/order.module';
 import { Order } from './order/entities/order.entity';
 import { OrderItem } from './order/entities/orderItem.entity';
 import { CommonModule } from './common/common.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { CommonModule } from './common/common.module';
     RestaurantModule,
     OrderModule,
     CommonModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],
