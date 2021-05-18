@@ -1,5 +1,5 @@
-import { gql, useApolloClient, useMutation, useQuery } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT, REVIEWS_FRAGMENT } from '../../fragments';
 import { restaurant, restaurantVariables } from '../../__generated__/restaurant';
@@ -96,7 +96,7 @@ interface IForm {
 const RestaurantDetail = () => {
     const [orderStarted, setOrderStarted] = useState(false);
     const [orderItem, setOrderItem] = useState<CreateOrderItemInput[]>([]);
-    const [seletedOptionItem, setSeletedOptionItem] = useState();
+
 
     const history = useHistory();
     const me = useMe();
@@ -106,7 +106,7 @@ const RestaurantDetail = () => {
         mode: 'onChange',
     });
 
-    const { loading, data } = useQuery<restaurant, restaurantVariables>(RESTAURANT_QUERY, {
+    const { data } = useQuery<restaurant, restaurantVariables>(RESTAURANT_QUERY, {
         variables: {
             input: {
                 restaurantId: +params.id,
@@ -193,7 +193,7 @@ const RestaurantDetail = () => {
 
     const onCompleted = (data: createOrder) => {
         const {
-            createOrder: { ok, orderId },
+            createOrder: { orderId },
         } = data;
         if (data.createOrder.ok) {
             alert("order created");
@@ -234,7 +234,7 @@ const RestaurantDetail = () => {
             }
         }
     }];
-    const [createReviewMutation, { loading: reviewLoading }] = useMutation<createReview, createReviewVariables>(CREATE_REVIEW_MUTATION, {
+    const [createReviewMutation] = useMutation<createReview, createReviewVariables>(CREATE_REVIEW_MUTATION, {
         onCompleted: reviewOnCompleted,
         refetchQueries
     });

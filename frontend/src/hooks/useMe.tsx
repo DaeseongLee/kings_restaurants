@@ -1,5 +1,4 @@
 import { gql, useQuery } from '@apollo/client';
-import React from 'react';
 import { meQuery } from '../__generated__/meQuery';
 
 export const ME_QUERY = gql`
