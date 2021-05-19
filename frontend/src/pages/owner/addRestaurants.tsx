@@ -80,10 +80,13 @@ const AddRestaurants = () => {
             formBody.append("file", actualFile);
 
             const { url: coverImg } = await (
-                await fetch("http://localhost:4500/uploads", {
-                    method: "POST",
-                    body: formBody,
-                })
+                await fetch(process.env.NODE_ENV === "production"
+                    ? 'https://kings-restaurant.herokuapp.com/uploads'
+                    : "http://localhost:4500/uploads"
+                    , {
+                        method: "POST",
+                        body: formBody,
+                    })
             ).json();
             setImageUrl(coverImg);
             createRestaurantMutation({
